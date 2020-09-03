@@ -33,13 +33,18 @@ app.post('/api/detect-intent/:sessionId', async (req, res) => {
     };
     const dfReses = await sessionsClient.detectIntent(dfReq);
     const dfRes = dfReses[0];
+    const { queryResult } = dfRes;
+    const { action } = queryResult;
 
     let prefix = null;
-    if(dfRes.queryResult.action.startsWith(prefix = 'input.ask.product.')) {
+    if(action === 'input.ask.time') {
+        queryResult.fulfillmentText = (new Date()).toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' });
+        res.send(dfRes);
+    } else if(action.startsWith(prefix = 'input.ask.product.')) {
         const conn = mysql.createConnection(dbConnection);
         conn.connect(debugFn);
 
-        const params = dfRes.queryResult.parameters.fields.product.listValue.values.map((value) => value.stringValue);
+        const params = queryResult.parameters.fields.product.listValue.values.map((value) => value.stringValue);
 
         conn.query(
             "SELECT * FROM product WHERE product.code IN (?)",
@@ -49,16 +54,16 @@ app.post('/api/detect-intent/:sessionId', async (req, res) => {
 
                 if(result.length > 0) {
                     const product = result[0];
-                    switch(dfRes.queryResult.action) {
+                    switch(action) {
                         case `${prefix}detail`:
-                            dfRes.queryResult.fulfillmentText = product.detail;
+                            queryResult.fulfillmentText = product.detail;
                             break;
                         case `${prefix}price`:
-                            dfRes.queryResult.fulfillmentText = product.price;
+                            queryResult.fulfillmentText = product.price;
                             break;
                     }
                 } else {
-                    dfRes.queryResult.fulfillmentText = 'Product not found!!!';
+                    queryResult.fulfillmentText = 'Product not found!!!';
                 }
 
                 res.send(dfRes);
