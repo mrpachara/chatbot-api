@@ -62,7 +62,7 @@ If you need to update `npm`, you can make it using `npm`! Cool right? After runn
 
 6. Create your `./.env` file with the following environment variables:
 
-    ```
+    ```shell
     # Google services
     GOOGLE_APPLICATION_CREDENTIALS="./key/YOUR_KEY_FILE_NAME.json"
     GOOGLE_PROJECT_ID="YOUR_PROJECT_ID"
