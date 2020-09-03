@@ -1,0 +1,14 @@
+With PowerShell:
+$env:GOOGLE_APPLICATION_CREDENTIALS="./service-key.json"; node .
+
+With command prompt (no space before &&):
+set GOOGLE_APPLICATION_CREDENTIALS=./service-key.json&& node .
+
+With Unix-like
+GOOGLE_APPLICATION_CREDENTIALS="./service-key.json" node .
+
+
+With node dotenv
+npm install -D dotenv
+
+node -r dotenv/config .
