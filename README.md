@@ -1,6 +1,6 @@
-# Chatbot API (Proxy Server)
+# Chatbot API (Proxy Server for Dailogflow)
 
-Student training to create Chatbot API (Proxy Server).
+Student training to create Chatbot API (Proxy Server for [Dialogflow](https://dialogflow.cloud.google.com)).
 
 ---
 ## Requirements
@@ -38,26 +38,29 @@ If you need to update `npm`, you can make it using `npm`! Cool right? After runn
 
 ## Install
 
-    $ git clone https://github.com/mrpachara/chatbot-app
-    $ cd chatbot-app
+    $ git clone https://github.com/mrpachara/chatbot-api
+    $ cd chatbot-api
     $ npm install
 
 ## Configurations
 
 1. Create your google service account key from [here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
 
-2. Store your google service acount key to directory `key`.
+2. Create directory `./key` and store your google service acount key into it.
 
-3. Create entity `product` in [Dialogflow](https://dialogflow.cloud.google.com).
+3. Create entity `product` in [Dialogflow](https://dialogflow.cloud.google.com) with the following instants.
+
+    - `book` - for book and add some thai language synonyms.
+    - `eraser` - for eraser and add some thai language synonyms.
 
 4. Create the following intents in [Dialogflow](https://dialogflow.cloud.google.com).
 
     - `input.ask.product.detail` - for products details.
     - `input.ask.product.price` - for products price.
 
-5. Import `product.sql` to MySQL.
+5. Import `./product.sql` to MySQL.
 
-6. Create your `.env` file with the following environment variables:
+6. Create your `./.env` file with the following environment variables:
 
     ```
     # Google services
