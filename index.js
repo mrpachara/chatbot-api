@@ -1,4 +1,4 @@
-'user strict';
+'use strict';
 
 import express from 'express';
 import cors from 'cors';
@@ -9,7 +9,7 @@ import mysql from 'mysql';
 const app = express();
 const port = 3000;
 const projectId = process.env.GOOGLE_PROJECT_ID;
-const sessionClient = new dialogflow.SessionsClient();
+const sessionsClient = new dialogflow.SessionsClient();
 const dbConnection = {
     host     : process.env.DB_HOST,
     user     : process.env.DB_USER,
@@ -26,20 +26,20 @@ app.use(cors());
 app.use(bodyParser.json({extended: true}));
 
 app.post('/api/detect-intent/:sessionId', async (req, res) => {
-    const sessionPath = sessionClient.projectAgentSessionPath(projectId, req.params.sessionId);
-    const request = {
+    const sessionPath = sessionsClient.projectAgentSessionPath(projectId, req.params.sessionId);
+    const dfReq = {
         session: sessionPath,
         ...req.body,
     };
-    const dfResponses = await sessionClient.detectIntent(request);
-    const dfResponse = dfResponses[0];
+    const dfReses = await sessionsClient.detectIntent(dfReq);
+    const dfRes = dfReses[0];
 
     let prefix = null;
-    if(dfResponse.queryResult.action.startsWith(prefix = 'input.ask.product.')) {
+    if(dfRes.queryResult.action.startsWith(prefix = 'input.ask.product.')) {
         const conn = mysql.createConnection(dbConnection);
         conn.connect(debugFn);
 
-        const params = dfResponse.queryResult.parameters.fields.product.listValue.values.map((value) => value.stringValue);
+        const params = dfRes.queryResult.parameters.fields.product.listValue.values.map((value) => value.stringValue);
 
         conn.query(
             "SELECT * FROM product WHERE product.code IN (?)",
@@ -49,25 +49,25 @@ app.post('/api/detect-intent/:sessionId', async (req, res) => {
 
                 if(result.length > 0) {
                     const product = result[0];
-                    switch(dfResponse.queryResult.action) {
+                    switch(dfRes.queryResult.action) {
                         case `${prefix}detail`:
-                            dfResponse.queryResult.fulfillmentText = product.detail;
+                            dfRes.queryResult.fulfillmentText = product.detail;
                             break;
                         case `${prefix}price`:
-                            dfResponse.queryResult.fulfillmentText = product.price;
+                            dfRes.queryResult.fulfillmentText = product.price;
                             break;
                     }
                 } else {
-                    dfResponse.queryResult.fulfillmentText = 'Product not found!!!';
+                    dfRes.queryResult.fulfillmentText = 'Product not found!!!';
                 }
 
-                res.send(dfResponse);
+                res.send(dfRes);
             },
         );
 
         conn.end(debugFn);
     } else {
-        res.send(dfResponse);
+        res.send(dfRes);
     }
 });
 
